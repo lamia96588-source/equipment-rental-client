@@ -55,7 +55,7 @@ export default function RegisterForm({ redirectTo }) {
       email: form.email.trim(),
       password: form.password,
       image: form.image || undefined,
-      role: form.role,
+      accountType: form.role,
     });
 
     if (authError) {

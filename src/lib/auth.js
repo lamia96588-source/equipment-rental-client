@@ -35,7 +35,10 @@ export const auth = betterAuth({
 
   user: {
     additionalFields: {
-      role: { type: "string", required: false, defaultValue: "customer", input: true },
+      // input: false means the browser can never send a role, at sign-up or later.
+      role: { type: "string", required: false, defaultValue: "customer", input: false },
+      // What the person picked on the register form; only read once, when the account is created.
+      accountType: { type: "string", required: false, defaultValue: "customer", input: true },
       phone: { type: "string", required: false, defaultValue: "", input: true },
       address: { type: "string", required: false, defaultValue: "", input: true },
     },
@@ -45,18 +48,12 @@ export const auth = betterAuth({
     user: {
       create: {
         // People may sign up as a customer or an owner. Google sign-ups get "customer".
-        // Only the configured admin email becomes an admin.
+        // Only the configured admin email becomes an admin. After this, roles are
+        // changed only by an admin through the Express API.
         before: async (user) => {
-          let role = SIGNUP_ROLES.includes(user.role) ? user.role : "customer";
+          let role = SIGNUP_ROLES.includes(user.accountType) ? user.accountType : "customer";
           if (adminEmail && user.email?.toLowerCase() === adminEmail) role = "admin";
           return { data: { ...user, role } };
-        },
-      },
-      update: {
-        // Roles are changed only by an admin through the Express API, never from the browser.
-        before: async (data) => {
-          const { role, ...rest } = data;
-          return { data: rest };
         },
       },
     },
