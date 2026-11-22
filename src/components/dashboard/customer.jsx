@@ -21,7 +21,7 @@ export function MyRentals() {
     setBusyId(booking._id);
     try {
       const result = await api(`/bookings/${booking._id}/pay`, { method: "POST" });
-      window.location.href = result.url;
+      window.location.assign(result.url);
     } catch (err) {
       toast.error(err.message);
       setBusyId("");
@@ -39,7 +39,7 @@ export function MyRentals() {
     try {
       await api(`/bookings/${booking._id}`, { method: "DELETE" });
       toast.success("Booking cancelled");
-      await reload();
+      reload();
     } catch (err) {
       toast.error(err.message);
     } finally {

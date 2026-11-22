@@ -1,34 +1,34 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { api } from "./api";
 
 // Loads data from the Express API and exposes loading, error and reload.
-// Pass null as the path to skip loading.
+// Pass null as the path to skip loading. While a reload or a new page is
+// loading, the previous data stays available so tables do not flash empty.
 export function useApi(path) {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(Boolean(path));
-  const [error, setError] = useState("");
-  const latest = useRef(0);
-
-  const reload = useCallback(async () => {
-    if (!path) return;
-    const id = ++latest.current;
-    setLoading(true);
-    setError("");
-    try {
-      const result = await api(path);
-      if (id === latest.current) setData(result);
-    } catch (err) {
-      if (id === latest.current) setError(err.message);
-    } finally {
-      if (id === latest.current) setLoading(false);
-    }
-  }, [path]);
+  const [version, setVersion] = useState(0);
+  const [state, setState] = useState({ key: null, data: null, error: "" });
+  const key = path ? `${path}#${version}` : null;
 
   useEffect(() => {
-    reload();
-  }, [reload]);
+    if (!path) return;
+    let active = true;
+    api(path)
+      .then((data) => active && setState({ key, data, error: "" }))
+      .catch((err) => active && setState((current) => ({ key, data: current.data, error: err.message })));
+    return () => {
+      active = false;
+    };
+  }, [path, key]);
 
-  return { data, setData, loading, error, reload };
+  const reload = useCallback(() => setVersion((value) => value + 1), []);
+
+  const setData = useCallback((next) => {
+    setState((current) => ({ ...current, data: typeof next === "function" ? next(current.data) : next }));
+  }, []);
+
+  const loading = key !== null && state.key !== key;
+
+  return { data: state.data, setData, loading, error: loading ? "" : state.error, reload };
 }

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import toast from "react-hot-toast";
 import {
   FiBox,
@@ -58,10 +58,6 @@ export default function DashboardShell({ initialUser, children }) {
   const user = { ...initialUser, ...(data?.user ? { name: data.user.name, image: data.user.image } : {}) };
   const menu = MENUS[user.role] || MENUS.customer;
 
-  useEffect(() => {
-    setOpen(false);
-  }, [pathname]);
-
   const handleLogout = async () => {
     await authClient.signOut();
     clearAccessToken();
@@ -102,6 +98,7 @@ export default function DashboardShell({ initialUser, children }) {
             <li key={href}>
               <Link
                 href={href}
+                onClick={() => setOpen(false)}
                 aria-current={isActive(href) ? "page" : undefined}
                 className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-colors ${
                   isActive(href)

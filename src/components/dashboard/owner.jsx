@@ -111,7 +111,7 @@ export function RentalsTable({ path, title, text, showOwner = false }) {
     try {
       await api(`/bookings/${booking._id}/status`, { method: "PATCH", body: { bookingStatus } });
       toast.success(`Booking marked as ${bookingStatus}`);
-      await reload();
+      reload();
     } catch (err) {
       toast.error(err.message);
     } finally {
