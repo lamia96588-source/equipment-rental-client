@@ -17,6 +17,7 @@ export default function EquipmentActions({ item, role }) {
   const [isFavorite, setIsFavorite] = useState(false);
   const [favoriteBusy, setFavoriteBusy] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [formError, setFormError] = useState("");
   const [form, setForm] = useState({
     startDate: todayInputValue(),
     endDate: todayInputValue(1),
@@ -63,10 +64,18 @@ export default function EquipmentActions({ item, role }) {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if (!estimate) return toast.error("The end date must be on or after the start date");
-    if (!quantityOk) return toast.error(`Choose a quantity from 1 to ${item.availableQuantity}`);
-    if (!form.contactNumber.trim()) return toast.error("Please enter a contact number");
-    if (!form.deliveryAddress.trim()) return toast.error("Please enter a delivery address");
+    // Shown inside the modal, because a toast would sit behind the open dialog.
+    const problem = !estimate
+      ? "The end date must be on or after the start date"
+      : !quantityOk
+        ? `Choose a quantity from 1 to ${item.availableQuantity}`
+        : !form.contactNumber.trim()
+          ? "Please enter a contact number"
+          : !form.deliveryAddress.trim()
+            ? "Please enter a delivery address"
+            : "";
+    setFormError(problem);
+    if (problem) return;
 
     setSubmitting(true);
     try {
@@ -75,9 +84,9 @@ export default function EquipmentActions({ item, role }) {
         body: { ...form, quantity, equipmentId: item._id },
       });
       toast.success("Booking saved. Taking you to secure payment…");
-      window.location.href = data.url;
+      window.location.assign(data.url);
     } catch (error) {
-      toast.error(error.message);
+      setFormError(error.message);
       setSubmitting(false);
     }
   };
@@ -226,11 +235,17 @@ export default function EquipmentActions({ item, role }) {
               )}
             </div>
 
+            {formError && (
+              <p role="alert" className="rounded-lg bg-error/10 px-3 py-2 text-sm font-medium text-error sm:col-span-2">
+                {formError}
+              </p>
+            )}
+
             <div className="flex flex-col-reverse gap-3 sm:col-span-2 sm:flex-row sm:justify-end">
               <button type="button" className="btn btn-ghost" onClick={() => dialogRef.current?.close()}>
                 Cancel
               </button>
-              <button type="submit" className="btn btn-primary" disabled={submitting || !estimate || !quantityOk}>
+              <button type="submit" className="btn btn-primary" disabled={submitting}>
                 {submitting && <span className="loading loading-spinner loading-sm" />}
                 Confirm and pay
               </button>
