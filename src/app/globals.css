@@ -1,0 +1,157 @@
+@import "tailwindcss";
+
+@plugin "daisyui" {
+  themes: false;
+}
+
+/* Light theme: warm paper, deep pine and amber */
+@plugin "daisyui/theme" {
+  name: "rentrig";
+  default: true;
+  color-scheme: light;
+  --color-base-100: #fbf8f3;
+  --color-base-200: #f3eee5;
+  --color-base-300: #e2d9c9;
+  --color-base-content: #1c2421;
+  --color-primary: #0e5a4f;
+  --color-primary-content: #f4fbf8;
+  --color-secondary: #f2a93b;
+  --color-secondary-content: #2b1c02;
+  --color-accent: #d9502a;
+  --color-accent-content: #fff7f3;
+  --color-neutral: #1c2421;
+  --color-neutral-content: #f3eee5;
+  --color-info: #2f6fb3;
+  --color-info-content: #f5f9ff;
+  --color-success: #2e8b57;
+  --color-success-content: #f3fbf6;
+  --color-warning: #c98a13;
+  --color-warning-content: #2b1c02;
+  --color-error: #c0392b;
+  --color-error-content: #fff5f3;
+  --radius-selector: 0.75rem;
+  --radius-field: 0.75rem;
+  --radius-box: 1.25rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
+/* Dark theme: same palette on a deep green-black */
+@plugin "daisyui/theme" {
+  name: "rentrig-dark";
+  color-scheme: dark;
+  --color-base-100: #111715;
+  --color-base-200: #18201d;
+  --color-base-300: #2a3732;
+  --color-base-content: #e8efea;
+  --color-primary: #4cc7a8;
+  --color-primary-content: #05231c;
+  --color-secondary: #f2b453;
+  --color-secondary-content: #2b1c02;
+  --color-accent: #ff7d55;
+  --color-accent-content: #2a0d03;
+  --color-neutral: #0b100e;
+  --color-neutral-content: #e8efea;
+  --color-info: #6aa9e6;
+  --color-info-content: #06192b;
+  --color-success: #58c487;
+  --color-success-content: #05210f;
+  --color-warning: #e7b24a;
+  --color-warning-content: #2b1c02;
+  --color-error: #ef6b5c;
+  --color-error-content: #2b0703;
+  --radius-selector: 0.75rem;
+  --radius-field: 0.75rem;
+  --radius-box: 1.25rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
+@theme inline {
+  --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-heading), ui-sans-serif, system-ui, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+/* Shared layout pieces, so every page uses the same widths, spacing and headings */
+@utility page-container {
+  width: 100%;
+  max-width: 80rem;
+  margin-inline: auto;
+  padding-inline: 1rem;
+
+  @media (width >= 40rem) {
+    padding-inline: 1.5rem;
+  }
+
+  @media (width >= 64rem) {
+    padding-inline: 2rem;
+  }
+}
+
+@utility section-space {
+  padding-block: 4rem;
+
+  @media (width >= 48rem) {
+    padding-block: 6rem;
+  }
+}
+
+@utility eyebrow {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+@utility section-title {
+  font-family: var(--font-display);
+  font-size: 1.875rem;
+  line-height: 1.15;
+  font-weight: 700;
+  color: var(--color-base-content);
+
+  @media (width >= 48rem) {
+    font-size: 2.5rem;
+  }
+}
+
+@utility section-lead {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: color-mix(in oklab, var(--color-base-content) 70%, transparent);
+}
+
+@utility card-surface {
+  background-color: var(--color-base-100);
+  border: 1px solid var(--color-base-300);
+  border-radius: var(--radius-box);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
