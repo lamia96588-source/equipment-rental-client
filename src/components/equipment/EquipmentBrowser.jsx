@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { FiSearch, FiSliders, FiX } from "react-icons/fi";
 import { api } from "@/lib/api";
 import { CATEGORY_NAMES, RENTAL_TYPES, SORT_OPTIONS } from "@/lib/constants";
@@ -63,11 +63,15 @@ export default function EquipmentBrowser() {
 
   const [filters, setFilters] = useState(() => readFilters(searchParams));
   const [searchText, setSearchText] = useState(filters.search);
-  const [result, setResult] = useState({ items: [], total: 0, pages: 1 });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [state, setState] = useState({ key: null, result: { items: [], total: 0, pages: 1 }, error: "" });
+  const [attempt, setAttempt] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
-  const requestId = useRef(0);
+
+  const query = toQuery(filters);
+  const key = `${query}#${attempt}`;
+  const loading = state.key !== key;
+  const { result } = state;
+  const error = loading ? "" : state.error;
 
   // Any change except the page number goes back to page 1.
   const change = (patch) => setFilters((current) => ({ ...current, page: 1, ...patch }));
@@ -80,27 +84,23 @@ export default function EquipmentBrowser() {
     return () => clearTimeout(timer);
   }, [searchText]);
 
-  const load = useCallback(async () => {
-    const id = ++requestId.current;
-    setLoading(true);
-    setError("");
-    try {
-      const query = toQuery(filters);
-      const data = await api(`/equipment?limit=${PAGE_SIZE}${query ? `&${query}` : ""}`, { auth: false });
-      if (id === requestId.current) setResult(data);
-    } catch (err) {
-      if (id === requestId.current) setError(err.message);
-    } finally {
-      if (id === requestId.current) setLoading(false);
-    }
-  }, [filters]);
-
+  // Ask the server for this exact combination of search, filters, sort and page.
   useEffect(() => {
-    load();
-    // Keep the address bar in sync so a filtered view can be shared or reloaded.
-    const query = toQuery(filters);
+    let active = true;
+    api(`/equipment?limit=${PAGE_SIZE}${query ? `&${query}` : ""}`, { auth: false })
+      .then((data) => active && setState({ key, result: data, error: "" }))
+      .catch((err) => active && setState((current) => ({ ...current, key, error: err.message })));
+    return () => {
+      active = false;
+    };
+  }, [query, key]);
+
+  // Keep the address bar in sync so a filtered view can be shared or reloaded.
+  useEffect(() => {
     router.replace(query ? `/equipment?${query}` : "/equipment", { scroll: false });
-  }, [filters, load, router]);
+  }, [query, router]);
+
+  const load = () => setAttempt((value) => value + 1);
 
   const reset = () => {
     setSearchText("");
@@ -203,7 +203,7 @@ export default function EquipmentBrowser() {
 
       <div className="min-w-0">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <label className="input input-bordered flex flex-1 items-center gap-2">
+          <label className="input input-bordered flex w-full items-center gap-2 sm:flex-1">
             <FiSearch className="size-4 shrink-0 text-base-content/50" />
             <span className="sr-only">Search equipment</span>
             <input
