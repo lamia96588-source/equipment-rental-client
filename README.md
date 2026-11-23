@@ -2,7 +2,8 @@
 
 RentRig is an equipment rental marketplace. Owners list equipment for rent, customers browse, book for specific dates and pay online, and admins approve listings and manage the platform.
 
-- **Live site:** _add your deployed URL here_
+- **Live site:** https://rentrig-app.vercel.app
+- **Live API:** https://rentrig-api.vercel.app
 - **Server repository:** https://github.com/lamia96588-source/equipment-rental-server
 
 ## Purpose
